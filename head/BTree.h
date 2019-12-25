@@ -7,7 +7,7 @@ typedef int Status;
 typedef struct KeyType {
     char bookName[10];
     int bookNum;
-    char bookAuthor[3];
+    char bookAuthor[10];
     int presentStock;
     int allStock;
 }KeyType;
@@ -29,6 +29,12 @@ typedef struct result{
     int i;//1<=i<=m,在结点中的关键字位序
     int tag;//1:查找成功,0:查找失败
 }result;
+
+void DeleteKey(BTree &p, int i);
+void Exchange(BTree &p, int i);
+void Remove(BTree &p, int i);
+void RestoreNode(BTree &p, int start, int end);
+void Restore(BTree &p);
 
 
 /**
@@ -182,15 +188,121 @@ void InsertBTree(BTree &t ,KeyType k, BTree q, int i) {
 * function:B树删除结点。
 * params:B树，查找的关键字, 查找结果
 */
-void DeleteBTree(BTree p, int i) {
-    //删除B树上结点的第i个关键字
-    if(p->ptr[i] != NULL) {
-        Successor(p, i);
-        DeleteBTree(p, 1);
-    } else {
-        Remove(p, i);
-        if(p->keynum < (m - 1) / 2) {
-            Restore(p, i);
-        }
-    }
+//void DeleteBTree(BTree p, K i) {
+//    //删除B树上结点的第i个关键字
+//    if(p->ptr[i] != NULL) {
+//        Successor(p, i);
+//        DeleteBTree(p, 1);
+//    } else {
+//        Remove(p, i);
+//        if(p->keynum < (m - 1) / 2) {
+//            Restore(p, i);
+//        }
+//    }
+//}
+
+/**
+* function:B树删除结点。
+* params:B树，查找的关键字
+*/
+void DeleteKey(BTree &p, int i)
+{
+	if (p->ptr[i] != NULL)   //若不是最下层非终端结点
+	{
+		Exchange(p, i);        //在Ai子树中找出最下层非终端结点的最小关键字替代Ki
+	}
+	else    //若是最下层非终端结点
+	{
+		Remove(p, i);       //从结点p中删除key[i]
+		if (p->keynum < (m - 1) / 2)     //删除后关键字个数小于（M - 1）/ 2
+			Restore(p);      //调整B树
+	}
+}
+
+
+void Exchange(BTree &p, int i)
+{
+	// 用最下层非终端结点的最小关键字替代当前关键字
+	BTree q;
+	KeyType key;
+	q = p;
+	key = q->key[i];
+	p = p->ptr[i];
+	while (p->ptr[0] != NULL)
+		p = p->ptr[0];
+	q->key[i] = p->key[1];
+	p->key[1] = key;
+	DeleteKey(p, 1);      //转换为删除最下层非终端结点中的最小关键字
+}
+
+
+void Remove(BTree &p, int i)
+{
+
+	if (i == p->keynum)
+		p->keynum--;
+	else
+		RestoreNode(p, i, p->keynum);
+}
+
+
+void RestoreNode(BTree &p, int start, int end)
+{
+	// 对结点某一指定下标区间的关键字项左移或右移
+	// 当起始下标start小于终止下标end时，将关键字项[start + 1]到[end]各自左移一位并减少关键字数目
+	// 当起始下标start大于终止下标end时，将关键字项[end]到[start - 1]各自右移一位并增加关键字数目
+	if (start < end)
+	{
+		for (int i = start; i < end; i++)
+		{
+			p->key[i] = p->key[i + 1];
+			p->ptr[i] = p->ptr[i + 1];
+		}
+		p->keynum--;
+	}
+	else
+	{
+		for (int i = start; i > end; i--)
+		{
+			p->key[i] = p->key[i - 1];
+			p->ptr[i] = p->ptr[i - 1];
+		}
+		p->keynum++;
+	}
+}
+
+
+void Restore(BTree &p)
+{
+	// 调整B树
+	BTree parent, cousin;
+
+	//如果为根结点则不需调整
+	if (p->parent == NULL)
+		return;
+	parent = p->parent;
+	int i;
+	// 查找p结点在父结点子结点数组中的位序i
+	for (i = 0; i <= parent->keynum; i++)
+		if (parent->ptr[i] == p)
+			break;
+
+	if (i + 1 <= parent->keynum && parent->ptr[i + 1]->keynum > (m - 1) / 2) //如果相邻的右兄弟结点有多余的关键字
+	{
+		cousin = parent->ptr[i + 1];
+		p->keynum++;
+
+		// 下移父结点位置i+1的关键字
+		p->key[p->keynum] = parent->key[i + 1];
+
+		// 复制右兄弟结点最小位序子结点到当前结点的最大位序子结点
+		p->ptr[p->keynum] = cousin->ptr[0];
+		if (p->ptr[p->keynum] != NULL)
+			p->ptr[p->keynum]->parent = p;
+
+		// 上移右兄弟结点中最小位序的关键字到父结点的位置i+1
+		parent->key[i + 1] = cousin->key[1];
+
+		RestoreNode(cousin, 0, cousin->keynum);     // 调整右兄弟结点
+	}
 }
