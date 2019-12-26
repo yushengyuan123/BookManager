@@ -1,6 +1,7 @@
 void AddBook(BTree t, result r);
 void menu(BTree p, result res);
 void deleteBook(BTree p);
+KeyType splitWhiteSpace(char str[]);
 result SearchBook(BTree t);
 /**
 * function:系统选择菜单。
@@ -51,62 +52,101 @@ void ReadSomeBookInfo(result res)   //图书总览
 }
 
 /**
-* function:向文件中增加图书。
+* function:初始化书库。
 * params:搜索结果
 */
-void wirteFile(result res) {
+void InitBookLibray(BTree p) {
     FILE *out;
-    out = fopen("bookList.txt","a+");
+    char temp[30];
+    int i;
+    int flag = 0, file_row = 0, count = 0;
+    result r;
+    KeyType bookList[50];
+    out = fopen("bookList.txt","r");
     if(out == NULL){
         printf("文件打开失败\n");
         Sleep(3000);
     }
+    while(!feof(out))
+    {
+        flag = fgetc(out);
+        if(flag == '\n')
+        count++;
+    }
+    file_row = count + 1; //加上最后一行
+    rewind(out);
 
-    fprintf(out,"%d %s %s %d %d\n",res.pt->key[res.i].bookNum, res.pt->key[res.i].bookName, res.pt->key[res.i].bookAuthor, res.pt->key[res.i].presentStock, res.pt->key[res.i].allStock);
-
+    for(i = 0; i < file_row; i++) {
+        fgets (temp, 60, out);
+        bookList[i] = splitWhiteSpace(temp);
+    }
     fclose(out);
+
+    for(i = 0; i < file_row; i++) {
+        SearchBTree(p, bookList[i].bookNum, r);
+        InsertBTree(p, bookList[i], r.pt, r.i);
+    }
+
+    printf("插入成功\n");
+
+    printf("按任意键返回");
+	getch();//不回显函数
+
+
 }
 
 /**
-* function:向文件中读取图书列表。
+* function:遇到空格切开。
+*/
+KeyType splitWhiteSpace(char *str) {
+    KeyType book;
+    int index = 0;
+    char delims[] = " ";
+    char *result = NULL;
+    result = strtok( str, delims );
+    while( result != NULL ) {
+        if(index == 0) {
+            book.bookNum = atoi(result);
+        } else if(index == 1) {
+            book.bookName = result;
+        } else if(index == 2) {
+            book.bookAuthor = result;
+        } else if(index == 3) {
+            book.presentStock = atoi(result);
+        } else if(index == 4) {
+            book.allStock = atoi(result);
+        }
+        index++;
+        result = strtok( NULL, delims );
+    }
+    return book;
+}
+
+
+/**
+* function:向文件中读取图书列表序号存入数组中(用于图书总览)。
 * params:搜索结果
 */
-char *ReadFile() {
-    FILE *fin = fopen("bookList.txt", "r"); /*假设文件名为file.txt*/
+char *ReadSerial() {
+    FILE *fin = fopen("bookSerial.txt", "r"); /*假设文件名为file.txt*/
     int flag = 0, file_row = 0, count = 0;
     //获取文件中的行数
     while(!feof(fin))
     {
         flag = fgetc(fin);
         if(flag == '\n')
-            if()
         count++;
     }
     file_row = count + 1; //加上最后一行
     printf("row = %d\n", file_row);
+    rewind(fin);
+    char str[file_row][20];
+    int i;
 
-    char a[file_row][20], i;
-
-        fscanf(fin, "%s", &a[i]);
-
-
-
-        printf("%s ", a);
-
+    for(i = 0; i < file_row; i++) {
+        fscanf(fin, "%s", str[i]);
+    }
     fclose(fin);
-
-//    FILE *fp;
-//    char *bookSerial
-//	char buf[1024];
-//	fp = fopen("bookList.txt", "r");
-//	if (fp == NULL) {
-//		printf("open error!\n");
-//	}
-//	else {
-//		while (fgets(buf, sizeof(buf), fp) != NULL) {
-//			printf(buf);
-//		}
-//	}
 
 }
 
@@ -137,7 +177,6 @@ void AddBook(BTree t, result r) {
     //如果tag为0说明图书不存在,则此时应该插入图书
     if(r.tag == 0) {
         InsertBTree(t, book, r.pt, r.i);
-        wirteFile(r);
         printf("添加成功,按任意键返回\n");
         getch();//不回显函数
     } else {

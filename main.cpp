@@ -10,9 +10,9 @@ int main() {
     int i;
     char t;
     BTree p = NULL;
-    ReadFile();
     InitBTree(p);
     result res;
+    InitBookLibray(p);
 //    for(i = 0; i < 100; i++) {
 //        menu(p, res);
 //    }

@@ -5,9 +5,9 @@
 typedef int Status;
 //书号、书名、著者、现存量和总库存量等五项。
 typedef struct KeyType {
-    char bookName[10];
+    char *bookName;
     int bookNum;
-    char bookAuthor[10];
+    char *bookAuthor;
     int presentStock;
     int allStock;
 }KeyType;
@@ -29,6 +29,8 @@ typedef struct result{
     int i;//1<=i<=m,在结点中的关键字位序
     int tag;//1:查找成功,0:查找失败
 }result;
+
+
 
 void DeleteKey(BTree &p, int i);
 void Exchange(BTree &p, int i);
@@ -152,7 +154,7 @@ void Insert(BTree &q, int i, KeyType x, BTree ap) {
 
 /**
 * function:B树的插入操作。
-* params:B树,传入关键字
+* params:B树,传入关键字, 插入的结点, 插入结点的指针数组下标
 */
 void InsertBTree(BTree &t ,KeyType k, BTree q, int i) {
     int s, finished = 0, needNewRoot = 0;
