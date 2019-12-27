@@ -53,8 +53,9 @@ Status InitBTree(BTree &t) {
     //关键字数组没有东西
     t->keynum = 0;
     t->parent = NULL;
-    for(i = 0; i < m + 1; i++) {
+    for(i = 0; i < m; i++) {
         t->ptr[i] = NULL;
+        t->key[i].bookNum = 0;
     }
     return 1;
 }
@@ -145,6 +146,7 @@ void Insert(BTree &q, int i, KeyType x, BTree ap) {
         q->ptr[j+1] = q->ptr[j];
     }
     q->key[i] = x;
+
     q->ptr[i] = ap;
     if(ap != NULL) {
         ap->parent = q;

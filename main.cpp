@@ -10,12 +10,11 @@ int main() {
     int i;
     char t;
     BTree p = NULL;
-    InitBTree(p);
     result res;
     InitBookLibray(p);
-//    for(i = 0; i < 100; i++) {
-//        menu(p, res);
-//    }
+    for(i = 0; i < 100; i++) {
+        menu(p, res);
+    }
 
 
 

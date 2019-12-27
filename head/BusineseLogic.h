@@ -3,6 +3,8 @@ void menu(BTree p, result res);
 void deleteBook(BTree p);
 KeyType splitWhiteSpace(char str[]);
 result SearchBook(BTree t);
+void ReadAllBookUI();
+void ReadAllBook(BTree p);
 /**
 * function:系统选择菜单。
 * params:
@@ -26,14 +28,14 @@ void menu(BTree p, result res) {   //菜单
 //		    case '2':amend_book();break;
 		    case '3':deleteBook(p);break;
 		    case '4':res = SearchBook(p);break;
-//		    case '5':print_book();break;
+		    case '5':ReadAllBook(p);break;
 //		    case '6':over();break;
 //		    default :break;
         }
 }
 
 /**
-* function:图书总览UI。
+* function:看某一本图书UI。
 * params:
 */
 void ReadSomeBookInfo(result res)   //图书总览
@@ -51,11 +53,59 @@ void ReadSomeBookInfo(result res)   //图书总览
     printf("  %d           %s         %s           %d               %d\n",res.pt->key[res.i].bookNum, res.pt->key[res.i].bookName, res.pt->key[res.i].bookAuthor, res.pt->key[res.i].presentStock, res.pt->key[res.i].allStock);
 }
 
+
+/**
+* function:图书总览UI。
+* params:
+*/
+void ReadAllBookUI() {
+    system("cls");
+	printf("--------------------------------------------------------------------\n");
+	printf("书编号        书名        作者名        当前数量        总数量\n");
+	printf("--------------------------------------------------------------------\n");
+}
+
 /**
 * function:初始化书库。
 * params:搜索结果
 */
-void InitBookLibray(BTree p) {
+void InitBookLibray(BTree &p) {
+    FILE *out;
+    char temp[30];
+    int i;
+    int flag = 0, file_row = 0, count = 0;
+    result r;
+    KeyType bookList[50];
+    out = fopen("bookList.txt","r");
+    if(out == NULL){
+        printf("文件打开失败\n");
+        Sleep(3000);
+    }
+    while(!feof(out))
+    {
+        flag = fgetc(out);
+        if(flag == '\n')
+        count++;
+    }
+    file_row = count + 1; //加上最后一行
+    rewind(out);
+    for(i = 0; i < file_row; i++) {
+        fgets (temp, 60, out);
+        bookList[i] = splitWhiteSpace(temp);
+    }
+    for(i = 0; i < file_row; i++) {
+        SearchBTree(p, bookList[i].bookNum, r);
+        InsertBTree(p, bookList[i], r.pt, r.i);
+    }
+    fclose(out);
+}
+
+/**
+* function:图书总览。
+* params:B树
+*/
+void ReadAllBook(BTree p) {
+    result res;
     FILE *out;
     char temp[30];
     int i;
@@ -81,18 +131,17 @@ void InitBookLibray(BTree p) {
         bookList[i] = splitWhiteSpace(temp);
     }
     fclose(out);
-
+    ReadAllBookUI();
+    printf("asdasdas%d", p->key[2].bookNum);
     for(i = 0; i < file_row; i++) {
-        SearchBTree(p, bookList[i].bookNum, r);
-        InsertBTree(p, bookList[i], r.pt, r.i);
+        SearchBTree(p, bookList[i].bookNum, res);
+        printf("第%d次%d书号%d", i, res.tag, bookList[i].bookNum);
+        if(res.tag == 1) {
+            printf("  %d           %s         %s           %d               %d\n",res.pt->key[res.i].bookNum, res.pt->key[res.i].bookName, res.pt->key[res.i].bookAuthor, res.pt->key[res.i].presentStock, res.pt->key[res.i].allStock);
+        }
     }
-
-    printf("插入成功\n");
-
     printf("按任意键返回");
 	getch();//不回显函数
-
-
 }
 
 /**
@@ -108,9 +157,11 @@ KeyType splitWhiteSpace(char *str) {
         if(index == 0) {
             book.bookNum = atoi(result);
         } else if(index == 1) {
-            book.bookName = result;
+            book.bookName = (char *)malloc(sizeof(char)*50);
+            strcpy(book.bookName, result);
         } else if(index == 2) {
-            book.bookAuthor = result;
+            book.bookAuthor = (char *)malloc(sizeof(char)*50);
+            strcpy(book.bookAuthor, result);
         } else if(index == 3) {
             book.presentStock = atoi(result);
         } else if(index == 4) {
@@ -119,6 +170,7 @@ KeyType splitWhiteSpace(char *str) {
         index++;
         result = strtok( NULL, delims );
     }
+
     return book;
 }
 
@@ -250,12 +302,5 @@ void deleteBook(BTree p) {
 	getch();//不回显函数
 }
 
-/**
-* function:图书总览。
-* params:B树
-*/
-void ReadAllBook() {
-
-}
 
 
