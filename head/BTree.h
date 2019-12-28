@@ -13,7 +13,8 @@ typedef struct KeyType {
 }KeyType;
 
 typedef struct Record {
-
+    char *StudentName;
+    int BorrowNum;
 }Record;
 
 typedef struct BTNode {
@@ -21,7 +22,7 @@ typedef struct BTNode {
     KeyType key[m+1];//关键字数组
     struct BTNode *parent;//双亲结点指针数组
     struct BTNode *ptr[m+1];//孩子结点指针数组
-    Record *recptr[m+1];//记录指针向量,0号单元未用
+    Record stu[m+1];//记录书籍被学生借出的信息。
 }BTNode, *BTree;
 
 typedef struct result{
@@ -29,6 +30,7 @@ typedef struct result{
     int i;//1<=i<=m,在结点中的关键字位序
     int tag;//1:查找成功,0:查找失败
 }result;
+
 
 
 
@@ -163,7 +165,7 @@ void InsertBTree(BTree &t ,KeyType k, BTree q, int i) {
     KeyType x;
     BTree ap;
     if(q == NULL) {
-        newRoot(t, NULL, x, NULL);//假如连根结点都没有的时候就会触发这条语句生成根结点
+        newRoot(t, NULL, k, NULL);//假如连根结点都没有的时候就会触发这条语句生成根结点
     } else {
         x = k, ap = NULL;
         while(0 == needNewRoot && finished == 0) {

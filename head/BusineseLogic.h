@@ -5,6 +5,8 @@ KeyType splitWhiteSpace(char str[]);
 result SearchBook(BTree t);
 void ReadAllBookUI();
 void ReadAllBook(BTree p);
+//void AfterAddWriteInFile(result res, int isTheSame);
+char *ConcatStr(result r);
 /**
 * function:系统选择菜单。
 * params:
@@ -96,6 +98,7 @@ void InitBookLibray(BTree &p) {
     for(i = 0; i < file_row; i++) {
         SearchBTree(p, bookList[i].bookNum, r);
         InsertBTree(p, bookList[i], r.pt, r.i);
+
     }
     fclose(out);
 }
@@ -132,10 +135,8 @@ void ReadAllBook(BTree p) {
     }
     fclose(out);
     ReadAllBookUI();
-    printf("asdasdas%d", p->key[2].bookNum);
     for(i = 0; i < file_row; i++) {
         SearchBTree(p, bookList[i].bookNum, res);
-        printf("第%d次%d书号%d", i, res.tag, bookList[i].bookNum);
         if(res.tag == 1) {
             printf("  %d           %s         %s           %d               %d\n",res.pt->key[res.i].bookNum, res.pt->key[res.i].bookName, res.pt->key[res.i].bookAuthor, res.pt->key[res.i].presentStock, res.pt->key[res.i].allStock);
         }
@@ -202,6 +203,17 @@ char *ReadSerial() {
 
 }
 
+/**
+* function:比较两个字符串是否相同。
+* params:字符串1,字符串2
+*/
+int CompareStr(char *str1, char *str2) {
+    if (strcmp(str1, str2) == 0) {
+	    return 1;
+	}
+	return 0;
+}
+
 
 /**
 * function:增加图书。
@@ -217,23 +229,145 @@ void AddBook(BTree t, result r) {
     scanf("%d", &book.bookNum);
     printf("请输入图书的书名:");
     fflush(stdin);
+    book.bookName = (char *)malloc(sizeof(char) * 50);
     gets(book.bookName);
     printf("请输入图书的作者:");
+    book.bookAuthor = (char *)malloc(sizeof(char) *50);
     fflush(stdin);
     gets(book.bookAuthor);
     book.allStock = 1;
     book.presentStock = 1;
-    printf("编号:%d\n书名:%s\n作者:%s\n",book.bookNum,book.bookName, book.bookAuthor);
+    printf("你输入的信息:编号:%d  书名:%s  作者:%s\n",book.bookNum,book.bookName, book.bookAuthor);
     //暂时先根据序号去搜索
     SearchBTree(t, book.bookNum, r);
     //如果tag为0说明图书不存在,则此时应该插入图书
     if(r.tag == 0) {
         InsertBTree(t, book, r.pt, r.i);
-        printf("添加成功,按任意键返回\n");
-        getch();//不回显函数
+        printf("添加成功\n");
+        //添加完后写入文件
+//        AfterAddWriteInFile(r, 0);
     } else {
-        //图书的数目加1
+        //此时说明这本树的位序已经有了,数目加1
+        if(CompareStr(book.bookName, r.pt->key[r.i].bookName) && CompareStr(book.bookAuthor, r.pt->key[r.i].bookAuthor)) {
+            r.pt->key[r.i].allStock++;
+            r.pt->key[r.i].presentStock++;
+            printf("添加成功\n");
+            //添加完后写入文件
+//            AfterAddWriteInFile(r, 1);
+        } else {
+            printf("插入失败,输入与已有书籍信息不匹配\n");
+        }
     }
+    printf("按任意键返回");
+	getch();//不回显函数
+}
+
+/**
+* function:添加完图书还要写入文件中。
+* params:B树,搜索结果
+*/
+//void AfterAddWriteInFile(result r, int isTheSame) {
+//    FILE *out;
+//    int i;
+//    int line, c, c1, cnt;
+//    out = fopen("bookList.txt","r+");
+//    char str1[60];
+////    char *temp = ConcatStr(r);
+//
+//    //获取目标字符串的行号
+//    while(fgets(temp,sizeof(temp),out))//逐行循环读取文件，直到文件结束
+//	{
+//		line++;
+//		if(strstr(temp,temp))  //检查字符串是否在该行中，如果在，则输出该行
+//		{
+//		    printf("目标字符串所在行为:%d\n",line);
+//            break;
+//		}
+//	}
+//
+//    if(out == NULL){
+//        exit(-1);
+//    }
+//    if(isTheSame == 0) {
+//        fprintf(out,"\n%d %s %s %d %d", r.pt->key[r.i].bookNum, r.pt->key[r.i].bookName, r.pt->key[r.i].bookAuthor, r.pt->key[r.i].presentStock, r.pt->key[r.i].allStock);
+//    } else {
+////        //获取目标字符串的行号
+////        while(fgets(temp,sizeof(temp),out))//逐行循环读取文件，直到文件结束
+////        {
+////            line++;
+////            if(strstr(temp,temp))  //检查字符串是否在该行中，如果在，则输出该行
+////            {
+////                printf("目标字符串所在行为:%d\n",line);
+////                break;
+////            }
+////        }
+////
+////        //检测到指定行开头的指针位置，将其赋值给c
+////        c = ftell(out);
+////        //遍历一遍目标行，确定该行长度，同时for循环结束时c1为该行末尾的指针位置
+////        while(fgetc(out)!='\n')
+////        {
+////            c1=ftell(out);
+////        }
+////        //将文件指针移到目标行的行首
+////        fseek(out,c,SEEK_SET);
+////        //得到目标行的长度
+////        cnt=c1-c;
+////        //for循环插入想要修改的内容
+////        for(i=0;i<cnt;i++)
+////        {
+////            fputc(temp,out);
+////        }
+//
+//    }
+//
+//    fclose(out);
+//}
+
+/**
+* function:将返回结果拼接成字符串。
+* params:搜索结果
+*/
+char *ConcatStr(result r) {
+    printf("我进来了\n");
+    char num[20]; itoa(r.pt->key[r.i].bookNum, num, 10);
+
+    char *name = r.pt->key[r.i].bookName;
+    char *author = r.pt->key[r.i].bookAuthor;
+    char presentStock[20]; itoa(r.pt->key[r.i].presentStock, presentStock, 10);
+    char allStock[20]; itoa(r.pt->key[r.i].allStock, allStock, 10);
+    char *concanStr = (char *) malloc(strlen(num) + strlen(name) + strlen(author) + strlen(presentStock) + strlen(allStock));
+printf("$s,%d\n", name,num);
+    strcpy(concanStr, num);
+    strcpy(concanStr, name);
+    strcpy(concanStr, author);
+    strcpy(concanStr, presentStock);
+    strcpy(concanStr, allStock);
+    printf("这个字符串为:%s\n", concanStr);
+    return concanStr;
+}
+
+/**
+* function:删除文件中的某一行。
+* params:无
+*/
+void deleteFile(result r) {
+    FILE* fp = fopen("bookList.txt", "r");
+    char *targetStr = (char *)malloc(sizeof(char)); strcpy(targetStr, "2 JavaScript 黄煜淇 1 1");
+    char *scanfStr = ConcatStr(r);
+    if(!fp)
+    {
+       exit(-1);
+    }
+    printf("fuck");
+    FILE* fp2 = fopen("temp.txt", "w");
+    while(fscanf(fp, "%s", scanfStr))
+    {
+        if(strcmp(scanfStr, targetStr))
+            fprintf(fp2, "%s\n", targetStr);
+    }
+    fclose(fp);
+    fclose(fp2);
 }
 
 /**
@@ -294,6 +428,7 @@ void deleteBook(BTree p) {
             DeleteKey(p, res.i);
             printf("你删除的图书序号为:%d,书籍名称为:%s\n", res.pt->key[res.i].bookNum, res.pt->key[res.i].bookName);
             printf("删除成功\n");
+            deleteFile(res);
         } else {
             printf("很抱歉你输入的书籍不存在\n");
         }
