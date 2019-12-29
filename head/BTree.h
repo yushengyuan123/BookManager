@@ -13,8 +13,8 @@ typedef struct KeyType {
 }KeyType;
 
 typedef struct Record {
-    char *StudentName;
-    int BorrowNum;
+    char *StudentName[20];//存放借阅图书学生的姓名
+    int deadline[20];
 }Record;
 
 typedef struct BTNode {
@@ -31,36 +31,11 @@ typedef struct result{
     int tag;//1:查找成功,0:查找失败
 }result;
 
-
-
-
 void DeleteKey(BTree &p, int i);
 void Exchange(BTree &p, int i);
 void Remove(BTree &p, int i);
 void RestoreNode(BTree &p, int start, int end);
 void Restore(BTree &p);
-
-
-/**
-* function:初始化B树。
-* params:队列
-*/
-Status InitBTree(BTree &t) {
-    int i;
-    t = (BTree)malloc(sizeof(BTNode));
-    if(t == NULL) {
-        printf("初始化失败\n");
-        return 0;
-    }
-    //关键字数组没有东西
-    t->keynum = 0;
-    t->parent = NULL;
-    for(i = 0; i < m; i++) {
-        t->ptr[i] = NULL;
-        t->key[i].bookNum = 0;
-    }
-    return 1;
-}
 
 /**
 * function:在关键字数组中查找关键字所在位置。
@@ -146,6 +121,7 @@ void Insert(BTree &q, int i, KeyType x, BTree ap) {
     for(j = n; j >= i; j--) {
         q->key[j+1] = q->key[j];
         q->ptr[j+1] = q->ptr[j];
+        q->stu[j+1] = q->stu[j];
     }
     q->key[i] = x;
 

@@ -5,8 +5,11 @@ KeyType splitWhiteSpace(char str[]);
 result SearchBook(BTree t);
 void ReadAllBookUI();
 void ReadAllBook(BTree p);
+void BorrorBook(BTree p);
+void QueryStuBook(BTree p);
+void ReturnBook(BTree p);
 //void AfterAddWriteInFile(result res, int isTheSame);
-char *ConcatStr(result r);
+//char *ConcatStr(result r);
 /**
 * function:系统选择菜单。
 * params:
@@ -18,20 +21,24 @@ void menu(BTree p, result res) {   //菜单
 		char t;
 		printf(" 图书查询管理系统\n");
 		printf("|     1.图书入库      |\n");
-		printf("|     2.修改信息      |\n");
-		printf("|     3.删除信息      |\n");
+		printf("|     2.借阅图书      |\n");
+		printf("|     3.删除图书      |\n");
 		printf("|     4.图书查询      |\n");
 		printf("|     5.图书总览      |\n");
-		printf("|     6.退出软件      |\n");
+		printf("|     6.借阅查看      |\n");
+		printf("|     7.归还图书      |\n");
+		printf("|     8.退出软件      |\n");
 //	}while(1);
         t = getchar();
         switch(t) {
             case '1':AddBook(p, res);break;
-//		    case '2':amend_book();break;
+		    case '2':BorrorBook(p);break;
 		    case '3':deleteBook(p);break;
 		    case '4':res = SearchBook(p);break;
 		    case '5':ReadAllBook(p);break;
-//		    case '6':over();break;
+		    case '6':QueryStuBook(p);break;
+		    case '7':ReturnBook(p);break;
+//            case '8':over();break;
 //		    default :break;
         }
 }
@@ -44,7 +51,7 @@ void ReadSomeBookInfo(result res)   //图书总览
 {
     system("cls");
 	printf("--------------------------------------------------------------------\n");
-	printf("书编号        书名        作者名        当前数量        总数量\n");
+	printf("书编号        书名        作者名        可借数量        总数量\n");
 	printf("--------------------------------------------------------------------\n");
 //	if(head==NULL)
 //	{
@@ -63,7 +70,7 @@ void ReadSomeBookInfo(result res)   //图书总览
 void ReadAllBookUI() {
     system("cls");
 	printf("--------------------------------------------------------------------\n");
-	printf("书编号        书名        作者名        当前数量        总数量\n");
+	printf("书编号        书名        作者名        可借数量        总数量\n");
 	printf("--------------------------------------------------------------------\n");
 }
 
@@ -328,47 +335,47 @@ void AddBook(BTree t, result r) {
 * function:将返回结果拼接成字符串。
 * params:搜索结果
 */
-char *ConcatStr(result r) {
-    printf("我进来了\n");
-    char num[20]; itoa(r.pt->key[r.i].bookNum, num, 10);
-
-    char *name = r.pt->key[r.i].bookName;
-    char *author = r.pt->key[r.i].bookAuthor;
-    char presentStock[20]; itoa(r.pt->key[r.i].presentStock, presentStock, 10);
-    char allStock[20]; itoa(r.pt->key[r.i].allStock, allStock, 10);
-    char *concanStr = (char *) malloc(strlen(num) + strlen(name) + strlen(author) + strlen(presentStock) + strlen(allStock));
-printf("$s,%d\n", name,num);
-    strcpy(concanStr, num);
-    strcpy(concanStr, name);
-    strcpy(concanStr, author);
-    strcpy(concanStr, presentStock);
-    strcpy(concanStr, allStock);
-    printf("这个字符串为:%s\n", concanStr);
-    return concanStr;
-}
+//char *ConcatStr(result r) {
+//    printf("我进来了\n");
+//    char num[20]; itoa(r.pt->key[r.i].bookNum, num, 10);
+//
+//    char *name = r.pt->key[r.i].bookName;
+//    char *author = r.pt->key[r.i].bookAuthor;
+//    char presentStock[20]; itoa(r.pt->key[r.i].presentStock, presentStock, 10);
+//    char allStock[20]; itoa(r.pt->key[r.i].allStock, allStock, 10);
+//    char *concanStr = (char *) malloc(strlen(num) + strlen(name) + strlen(author) + strlen(presentStock) + strlen(allStock));
+//printf("$s,%d\n", name,num);
+//    strcpy(concanStr, num);
+//    strcpy(concanStr, name);
+//    strcpy(concanStr, author);
+//    strcpy(concanStr, presentStock);
+//    strcpy(concanStr, allStock);
+//    printf("这个字符串为:%s\n", concanStr);
+//    return concanStr;
+//}
 
 /**
 * function:删除文件中的某一行。
 * params:无
 */
-void deleteFile(result r) {
-    FILE* fp = fopen("bookList.txt", "r");
-    char *targetStr = (char *)malloc(sizeof(char)); strcpy(targetStr, "2 JavaScript 黄煜淇 1 1");
-    char *scanfStr = ConcatStr(r);
-    if(!fp)
-    {
-       exit(-1);
-    }
-    printf("fuck");
-    FILE* fp2 = fopen("temp.txt", "w");
-    while(fscanf(fp, "%s", scanfStr))
-    {
-        if(strcmp(scanfStr, targetStr))
-            fprintf(fp2, "%s\n", targetStr);
-    }
-    fclose(fp);
-    fclose(fp2);
-}
+//void deleteFile(result r) {
+//    FILE* fp = fopen("bookList.txt", "r");
+//    char *targetStr = (char *)malloc(sizeof(char)); strcpy(targetStr, "2 JavaScript 黄煜淇 1 1");
+//    char *scanfStr = ConcatStr(r);
+//    if(!fp)
+//    {
+//       exit(-1);
+//    }
+//    printf("fuck");
+//    FILE* fp2 = fopen("temp.txt", "w");
+//    while(fscanf(fp, "%s", scanfStr))
+//    {
+//        if(strcmp(scanfStr, targetStr))
+//            fprintf(fp2, "%s\n", targetStr);
+//    }
+//    fclose(fp);
+//    fclose(fp2);
+//}
 
 /**
 * function:查找图书。
@@ -428,10 +435,118 @@ void deleteBook(BTree p) {
             DeleteKey(p, res.i);
             printf("你删除的图书序号为:%d,书籍名称为:%s\n", res.pt->key[res.i].bookNum, res.pt->key[res.i].bookName);
             printf("删除成功\n");
-            deleteFile(res);
+//            deleteFile(res);
         } else {
             printf("很抱歉你输入的书籍不存在\n");
         }
+    }
+    printf("按任意键返回");
+	getch();//不回显函数
+}
+
+
+/**
+* function:借阅图书。
+* params:B树
+*/
+void BorrorBook(BTree p) {
+    int bookSerial;
+    result r;
+    char *studentName;
+    int deadline;
+
+    system("cls");
+    printf("请输入借阅图书的序号:");
+    scanf("%d", &bookSerial);
+    printf("请输入借阅人的姓名:");
+    fflush(stdin);
+    studentName = (char *)malloc(sizeof(char) * 50);
+    gets(studentName);
+    printf("请输入借阅的天数:");
+    scanf("%d", &deadline);
+
+    printf("你输入的信息:借阅书籍编号:%d  借书人姓名:%s  借阅天数:%d\n", bookSerial, studentName, deadline);
+
+    SearchBTree(p, bookSerial, r);
+    if(r.tag == 0) {
+        printf("借阅失败,抱歉你借阅的图书不存在\n");
+    } else if(r.pt->key[r.i].presentStock == 0){
+        printf("借阅失败,抱歉图书已经被借阅完\n");
+    } else {
+        //借阅成功,目前存量减去1
+        int present = --(r.pt->key[r.i].presentStock);
+        int all = r.pt->key[r.i].allStock;
+        //记录学生借阅日期
+        r.pt->stu[r.i].deadline[all - present] = deadline;
+        r.pt->stu[r.i].StudentName[all - present] = (char *)malloc(sizeof(char) * 10);
+        strcpy(r.pt->stu[r.i].StudentName[all - present], studentName);
+        SearchBTree(p, bookSerial, r);
+        printf("借阅成功");
+    }
+    printf("按任意键返回");
+	getch();//不回显函数
+}
+
+/**
+* function:查看借阅学生借阅图书。
+* params:B树
+*/
+void QueryStuBook(BTree p) {
+    int bookSerial;
+    result r;
+    int k;
+
+    system("cls");
+
+    printf("请输入借阅图书的序号:");
+    scanf("%d", &bookSerial);
+
+    SearchBTree(p, bookSerial, r);
+    if(r.tag == 0) {
+        printf("查询失败,抱歉你查询的图书不存在\n");
+    } else if(r.pt->key[r.i].allStock == r.pt->key[r.i].presentStock){
+        printf("查询成功,目前该图书尚未有人借阅\n");
+    } else {
+        printf("借阅书籍:%s\n", r.pt->key[r.i].bookName);
+        for(k = 1; k < r.pt->key[r.i].allStock - r.pt->key[r.i].presentStock + 1; k++) {
+            printf("借阅人姓名:%s,借阅天数:%d\n", r.pt->stu[r.i].StudentName[k], r.pt->stu[r.i].deadline[k]);
+        }
+    }
+    printf("按任意键返回");
+	getch();//不回显函数
+}
+
+/**
+* function:归还图书。
+* params:B树
+*/
+void ReturnBook(BTree p) {
+    int bookSerial;
+    char *Name;
+    result r;
+    int k;
+
+    system("cls");
+    printf("请输入归还人的名字:");
+    fflush(stdin);
+    Name = (char *)malloc(sizeof(char) * 20);
+    gets(Name);
+    printf("\n请输入归还图书的序号:");
+    scanf("%d", &bookSerial);
+
+    SearchBTree(p, bookSerial, r);
+    if(r.tag == 0) {
+        printf("归还失败,抱歉你归还的图书不存在\n");
+    } else if(r.pt->key[r.i].allStock == r.pt->key[r.i].presentStock){
+        printf("查询失败,目前该图书尚未有借阅记录\n");
+    } else {
+        printf("归还书籍:%s\n", r.pt->key[r.i].bookName);
+        int present = ++(r.pt->key[r.i].presentStock);
+        int all = r.pt->key[r.i].allStock;
+        r.pt->stu[r.i].StudentName[all - present] = NULL;
+        r.pt->stu[r.i].deadline[all - present] = 0;
+        printf("归还成功");
+
     }
     printf("按任意键返回");
 	getch();//不回显函数
