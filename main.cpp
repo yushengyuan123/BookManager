@@ -13,7 +13,10 @@ int main() {
     result res;
     InitBookLibray(p);
     for(i = 0; i < 100; i++) {
-        menu(p, res);
+        if(!menu(p, res)) {
+            return 0;
+        }
+
     }
 }
 

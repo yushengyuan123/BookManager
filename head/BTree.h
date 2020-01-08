@@ -207,20 +207,23 @@ void Exchange(BTree &p, int i)
 	// 用最下层非终端结点的最小关键字替代当前关键字
 	BTree q;
 	KeyType key;
+	Record stu;
 	q = p;
 	key = q->key[i];
+	stu = q->stu[i];
 	p = p->ptr[i];
 	while (p->ptr[0] != NULL)
 		p = p->ptr[0];
 	q->key[i] = p->key[1];
+	q->stu[i] = p->stu[1];
 	p->key[1] = key;
+	p->stu[1] = stu;
 	DeleteKey(p, 1);      //转换为删除最下层非终端结点中的最小关键字
 }
 
 
 void Remove(BTree &p, int i)
 {
-
 	if (i == p->keynum)
 		p->keynum--;
 	else
@@ -239,6 +242,7 @@ void RestoreNode(BTree &p, int start, int end)
 		{
 			p->key[i] = p->key[i + 1];
 			p->ptr[i] = p->ptr[i + 1];
+			p->stu[i] = p->stu[i + 1];
 		}
 		p->keynum--;
 	}
@@ -248,6 +252,7 @@ void RestoreNode(BTree &p, int start, int end)
 		{
 			p->key[i] = p->key[i - 1];
 			p->ptr[i] = p->ptr[i - 1];
+			p->stu[i] = p->stu[i - 1];
 		}
 		p->keynum++;
 	}

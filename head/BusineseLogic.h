@@ -1,5 +1,5 @@
 void AddBook(BTree t, result r);
-void menu(BTree p, result res);
+int menu(BTree p, result res);
 void deleteBook(BTree p);
 KeyType splitWhiteSpace(char str[]);
 result SearchBook(BTree t);
@@ -8,26 +8,27 @@ void ReadAllBook(BTree p);
 void BorrorBook(BTree p);
 void QueryStuBook(BTree p);
 void ReturnBook(BTree p);
-//void AfterAddWriteInFile(result res, int isTheSame);
+void over();
+void AfterAddWriteInFile(result res, int isTheSame);
 //char *ConcatStr(result r);
 /**
 * function:系统选择菜单。
 * params:
 */
-void menu(BTree p, result res) {   //菜单
+int menu(BTree p, result res) {   //菜单
 //	do
 //	{
 		system("cls");  //清屏
 		char t;
-		printf(" 图书查询管理系统\n");
-		printf("|     1.图书入库      |\n");
-		printf("|     2.借阅图书      |\n");
-		printf("|     3.删除图书      |\n");
-		printf("|     4.图书查询      |\n");
-		printf("|     5.图书总览      |\n");
-		printf("|     6.借阅查看      |\n");
-		printf("|     7.归还图书      |\n");
-		printf("|     8.退出软件      |\n");
+		printf("   图书查询管理系统\n");
+		printf("|     1.图书入库      |\n\n");
+		printf("|     2.借阅图书      |\n\n");
+		printf("|     3.删除图书      |\n\n");
+		printf("|     4.图书查询      |\n\n");
+		printf("|     5.图书总览      |\n\n");
+		printf("|     6.借阅查看      |\n\n");
+		printf("|     7.归还图书      |\n\n");
+		printf("|     8.退出软件      |\n\n");
 //	}while(1);
         t = getchar();
         switch(t) {
@@ -38,9 +39,10 @@ void menu(BTree p, result res) {   //菜单
 		    case '5':ReadAllBook(p);break;
 		    case '6':QueryStuBook(p);break;
 		    case '7':ReturnBook(p);break;
-//            case '8':over();break;
-//		    default :break;
+            case '8':return 0; break;
+		    default :break;
         }
+        return 1;
 }
 
 /**
@@ -50,8 +52,9 @@ void menu(BTree p, result res) {   //菜单
 void ReadSomeBookInfo(result res)   //图书总览
 {
     system("cls");
+    printf("************************图书信息************************************\n");
 	printf("--------------------------------------------------------------------\n");
-	printf("书编号        书名        作者名        可借数量        总数量\n");
+	printf("书编号        作者名        可借数量        总数量        书名\n");
 	printf("--------------------------------------------------------------------\n");
 //	if(head==NULL)
 //	{
@@ -59,7 +62,7 @@ void ReadSomeBookInfo(result res)   //图书总览
 //		getch();
 //		menu();
 //	}
-    printf("  %d           %s         %s           %d               %d\n",res.pt->key[res.i].bookNum, res.pt->key[res.i].bookName, res.pt->key[res.i].bookAuthor, res.pt->key[res.i].presentStock, res.pt->key[res.i].allStock);
+    printf("  %d         %s           %d         %d         %s\n",res.pt->key[res.i].bookNum, res.pt->key[res.i].bookAuthor, res.pt->key[res.i].presentStock, res.pt->key[res.i].allStock, res.pt->key[res.i].bookName);
 }
 
 
@@ -69,8 +72,9 @@ void ReadSomeBookInfo(result res)   //图书总览
 */
 void ReadAllBookUI() {
     system("cls");
+    printf("************************图书总览************************************\n");
 	printf("--------------------------------------------------------------------\n");
-	printf("书编号        书名        作者名        可借数量        总数量\n");
+	printf("书编号      作者名       可借数量           总数量       书名\n");
 	printf("--------------------------------------------------------------------\n");
 }
 
@@ -145,7 +149,7 @@ void ReadAllBook(BTree p) {
     for(i = 0; i < file_row; i++) {
         SearchBTree(p, bookList[i].bookNum, res);
         if(res.tag == 1) {
-            printf("  %d           %s         %s           %d               %d\n",res.pt->key[res.i].bookNum, res.pt->key[res.i].bookName, res.pt->key[res.i].bookAuthor, res.pt->key[res.i].presentStock, res.pt->key[res.i].allStock);
+             printf("  %d         %s           %d               %d            %s\n\n",res.pt->key[res.i].bookNum, res.pt->key[res.i].bookAuthor, res.pt->key[res.i].presentStock, res.pt->key[res.i].allStock, res.pt->key[res.i].bookName);
         }
     }
     printf("按任意键返回");
@@ -223,7 +227,7 @@ int CompareStr(char *str1, char *str2) {
 
 
 /**
-* function:增加图书。
+* function:图书入库。
 * params:B树,搜索结果
 */
 void AddBook(BTree t, result r) {
@@ -232,8 +236,10 @@ void AddBook(BTree t, result r) {
     KeyType book;
 
     system("cls");
+    printf("************************图书入库************************************\n");
     printf("请输入图书的编号:");
     scanf("%d", &book.bookNum);
+    fflush(stdin);
     printf("请输入图书的书名:");
     fflush(stdin);
     book.bookName = (char *)malloc(sizeof(char) * 50);
@@ -252,7 +258,7 @@ void AddBook(BTree t, result r) {
         InsertBTree(t, book, r.pt, r.i);
         printf("添加成功\n");
         //添加完后写入文件
-//        AfterAddWriteInFile(r, 0);
+        AfterAddWriteInFile(r, 0);
     } else {
         //此时说明这本树的位序已经有了,数目加1
         if(CompareStr(book.bookName, r.pt->key[r.i].bookName) && CompareStr(book.bookAuthor, r.pt->key[r.i].bookAuthor)) {
@@ -273,15 +279,15 @@ void AddBook(BTree t, result r) {
 * function:添加完图书还要写入文件中。
 * params:B树,搜索结果
 */
-//void AfterAddWriteInFile(result r, int isTheSame) {
-//    FILE *out;
-//    int i;
-//    int line, c, c1, cnt;
-//    out = fopen("bookList.txt","r+");
-//    char str1[60];
-////    char *temp = ConcatStr(r);
-//
-//    //获取目标字符串的行号
+void AfterAddWriteInFile(result r, int isTheSame) {
+    FILE *out;
+    int i;
+    int line, c, c1, cnt;
+    out = fopen("bookList.txt","a+");
+    char str1[60];
+//    char *temp = ConcatStr(r);
+
+    //获取目标字符串的行号
 //    while(fgets(temp,sizeof(temp),out))//逐行循环读取文件，直到文件结束
 //	{
 //		line++;
@@ -291,45 +297,45 @@ void AddBook(BTree t, result r) {
 //            break;
 //		}
 //	}
+
+    if(out == NULL){
+        exit(-1);
+    }
+    if(isTheSame == 0) {
+        fprintf(out,"\n%d %s %s %d %d", r.pt->key[r.i].bookNum, r.pt->key[r.i].bookName, r.pt->key[r.i].bookAuthor, r.pt->key[r.i].presentStock, r.pt->key[r.i].allStock);
+    } else {
+//        //获取目标字符串的行号
+//        while(fgets(temp,sizeof(temp),out))//逐行循环读取文件，直到文件结束
+//        {
+//            line++;
+//            if(strstr(temp,temp))  //检查字符串是否在该行中，如果在，则输出该行
+//            {
+//                printf("目标字符串所在行为:%d\n",line);
+//                break;
+//            }
+//        }
 //
-//    if(out == NULL){
-//        exit(-1);
-//    }
-//    if(isTheSame == 0) {
-//        fprintf(out,"\n%d %s %s %d %d", r.pt->key[r.i].bookNum, r.pt->key[r.i].bookName, r.pt->key[r.i].bookAuthor, r.pt->key[r.i].presentStock, r.pt->key[r.i].allStock);
-//    } else {
-////        //获取目标字符串的行号
-////        while(fgets(temp,sizeof(temp),out))//逐行循环读取文件，直到文件结束
-////        {
-////            line++;
-////            if(strstr(temp,temp))  //检查字符串是否在该行中，如果在，则输出该行
-////            {
-////                printf("目标字符串所在行为:%d\n",line);
-////                break;
-////            }
-////        }
-////
-////        //检测到指定行开头的指针位置，将其赋值给c
-////        c = ftell(out);
-////        //遍历一遍目标行，确定该行长度，同时for循环结束时c1为该行末尾的指针位置
-////        while(fgetc(out)!='\n')
-////        {
-////            c1=ftell(out);
-////        }
-////        //将文件指针移到目标行的行首
-////        fseek(out,c,SEEK_SET);
-////        //得到目标行的长度
-////        cnt=c1-c;
-////        //for循环插入想要修改的内容
-////        for(i=0;i<cnt;i++)
-////        {
-////            fputc(temp,out);
-////        }
-//
-//    }
-//
-//    fclose(out);
-//}
+//        //检测到指定行开头的指针位置，将其赋值给c
+//        c = ftell(out);
+//        //遍历一遍目标行，确定该行长度，同时for循环结束时c1为该行末尾的指针位置
+//        while(fgetc(out)!='\n')
+//        {
+//            c1=ftell(out);
+//        }
+//        //将文件指针移到目标行的行首
+//        fseek(out,c,SEEK_SET);
+//        //得到目标行的长度
+//        cnt=c1-c;
+//        //for循环插入想要修改的内容
+//        for(i=0;i<cnt;i++)
+//        {
+//            fputc(temp,out);
+//        }
+
+    }
+
+    fclose(out);
+}
 
 /**
 * function:将返回结果拼接成字符串。
@@ -395,11 +401,6 @@ result SearchBook(BTree t) {
     } else {
         if(SearchBTree(t, bookSerial, res)) {
             ReadSomeBookInfo(res);
-            printf("%d\n",  res.pt->keynum);
-            printf("%d\n", res.i);
-            printf("%s", res.pt->key[res.i].bookName);
-            printf("%s", res.pt->key[res.i].bookAuthor);
-            Sleep(5000);
         } else {
             printf("查找失败\n");
         }
@@ -421,19 +422,21 @@ void deleteBook(BTree p) {
     result res;
 
     system("cls");
+    printf("************************图书删除************************************\n");
     printf("请输入你要删除书的序号:");
     scanf("%d", &bookSerial);
-    system("cls");
     if(bookSerial <= 0) {
         //输入出错返回出错的信息
         res.pt = NULL;
         res.i = 0;
         printf("你的输入有误\n");
-        Sleep(5000);
     } else {
         if(SearchBTree(p, bookSerial, res)) {
-            DeleteKey(p, res.i);
-            printf("你删除的图书序号为:%d,书籍名称为:%s\n", res.pt->key[res.i].bookNum, res.pt->key[res.i].bookName);
+            printf("--------------------------------------------------------------------\n");
+            printf("书编号             书名\n");
+            printf("--------------------------------------------------------------------\n");
+            printf("%d                %s\n", res.pt->key[res.i].bookNum, res.pt->key[res.i].bookName);
+            DeleteKey(res.pt, res.i);
             printf("删除成功\n");
 //            deleteFile(res);
         } else {
@@ -456,6 +459,7 @@ void BorrorBook(BTree p) {
     int deadline;
 
     system("cls");
+    printf("************************图书借阅************************************\n");
     printf("请输入借阅图书的序号:");
     scanf("%d", &bookSerial);
     printf("请输入借阅人的姓名:");
@@ -497,7 +501,7 @@ void QueryStuBook(BTree p) {
     int k;
 
     system("cls");
-
+    printf("************************借阅查询************************************\n");
     printf("请输入借阅图书的序号:");
     scanf("%d", &bookSerial);
 
@@ -527,6 +531,7 @@ void ReturnBook(BTree p) {
     int k;
 
     system("cls");
+    printf("************************图书归还************************************\n");
     printf("请输入归还人的名字:");
     fflush(stdin);
     Name = (char *)malloc(sizeof(char) * 20);
@@ -551,6 +556,7 @@ void ReturnBook(BTree p) {
     printf("按任意键返回");
 	getch();//不回显函数
 }
+
 
 
 
